@@ -1,0 +1,37 @@
+version: "3"
+
+services:
+    php_producer:
+        container_name: docker_php_producer
+        build:
+            context: .
+            dockerfile: docker/php-producer/Dockerfile
+        networks:
+            - rm_network
+        environment:
+            - APP_ENV=dev
+            - CLOUDAMQP_HOST=${CLOUDAMQP_HOST}
+            - CLOUDAMQP_PORT=${CLOUDAMQP_PORT}
+            - CLOUDAMQP_USER=${CLOUDAMQP_USER}
+            - CLOUDAMQP_PASS=${CLOUDAMQP_PASS}
+            - CLOUDAMQP_VHOST=${CLOUDAMQP_VHOST}
+        volumes:
+            - ./php-producer:/opt/app
+    php_consumer:
+        container_name: docker_php_consumer
+        build:
+            context: .
+            dockerfile: docker/php-consumer/Dockerfile
+        networks:
+            - rm_network
+        environment:
+            - APP_ENV=dev
+            - CLOUDAMQP_HOST=${CLOUDAMQP_HOST}
+            - CLOUDAMQP_PORT=${CLOUDAMQP_PORT}
+            - CLOUDAMQP_USER=${CLOUDAMQP_USER}
+            - CLOUDAMQP_PASS=${CLOUDAMQP_PASS}
+            - CLOUDAMQP_VHOST=${CLOUDAMQP_VHOST}
+        volumes:
+            - ./php-consumer:/opt/app
+networks:
+    rm_network:
