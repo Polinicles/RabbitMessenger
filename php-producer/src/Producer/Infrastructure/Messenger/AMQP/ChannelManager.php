@@ -20,6 +20,12 @@ final class ChannelManager
         return $this->connection->channel();
     }
 
+    public function bindQueueToExchange(string $queueName, string $exchangeName)
+    {
+        $channel = $this->channel();
+        $channel->queue_bind($queueName, $exchangeName);
+    }
+
     public function publishBatch()
     {
         $channel = $this->channel();

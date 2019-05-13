@@ -15,6 +15,7 @@ services:
             - CLOUDAMQP_USER=${CLOUDAMQP_USER}
             - CLOUDAMQP_PASS=${CLOUDAMQP_PASS}
             - CLOUDAMQP_VHOST=${CLOUDAMQP_VHOST}
+            - MAX_MSG_QUEUE=${MAX_MSG_QUEUE}
         volumes:
             - ./php-producer:/opt/app
     php_consumer:

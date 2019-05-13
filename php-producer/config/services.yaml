@@ -21,7 +21,7 @@ services:
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
 
-    ## Channel
+    ## AMQP
     ##########
     PhpAmqpLib\Connection\AMQPStreamConnection:
         arguments:
@@ -30,3 +30,18 @@ services:
             $user: '%env(CLOUDAMQP_USER)%'
             $password: '%env(CLOUDAMQP_PASS)%'
             $vhost: '%env(CLOUDAMQP_VHOST)%'
+
+    App\Producer\Infrastructure\Messenger\AMQP\QueueManager:
+        arguments:
+            $passive: false
+            $durable: false
+            $exclusive: false
+            $autoDelete: false
+            $maxMessagesPerQueue: '%env(MAX_MSG_QUEUE)%'
+
+    App\Producer\Infrastructure\Messenger\AMQP\ExchangeManager:
+        arguments:
+            $exchangeType: 'direct'
+            $passive: false
+            $durable: false
+            $autoDelete: false
