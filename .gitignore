@@ -1,2 +1,12 @@
 .idea
 .env
+
+# Cache, session files and logs
+/php-consumer/var/cache/*
+/php-consumer/var/log/*
+/php-producer/var/cache/*
+/php-producer/var/log/*
+
+# Managed by Composer
+/php-consumer/vendor
+/php-producer/vendor
