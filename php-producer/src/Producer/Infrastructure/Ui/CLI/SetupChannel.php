@@ -5,7 +5,6 @@ namespace App\Producer\Infrastructure\Ui\CLI;
 use App\Producer\Infrastructure\Messenger\AMQP\ChannelManager;
 use App\Producer\Infrastructure\Messenger\AMQP\ExchangeManager;
 use App\Producer\Infrastructure\Messenger\AMQP\QueueManager;
-use PhpAmqpLib\Exchange\AMQPExchangeType;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -64,20 +63,24 @@ class SetupChannel extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output) //TODO: implement try & catch
     {
-        $messagesToSend = $input->getOption(self::MSG_TO_BE_SENT);
+        try {
+            $messagesToSend = $input->getOption(self::MSG_TO_BE_SENT);
+            $channel = $this->channelManager->channel();
+            $exchange = $this->exchangeName;
 
-        $queues = $this->queueManager->calculateNecessaryQueues($messagesToSend);
-        $channel = $this->channelManager->channel();
-        $exchange = $this->exchangeName;
-        $this->exchangeManager->declare($channel, $exchange);
+            $queues = $this->queueManager->calculateNecessaryQueues($messagesToSend);
+            $this->exchangeManager->declare($channel, $exchange);
 
-        foreach ($queues as $queue) {
-            $this->queueManager->declare($channel, $queue);
-            $this->channelManager->bindQueueToExchange($queue, $exchange);
+            foreach ($queues as $queue) {
+                $this->queueManager->declare($channel, $queue);
+                $this->channelManager->bindQueueToExchange($queue, $exchange);
+            }
+
+            $this->channelManager->close();
+
+            $output->writeln('Channel defined successfully');
+        } catch (\Throwable $exception) {
+            $output->writeln('Error: '.$exception->getMessage());
         }
-
-        $this->channelManager->close();
-
-        $output->writeln('Channel defined successfully');
     }
 }
