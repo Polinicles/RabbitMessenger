@@ -14,9 +14,19 @@ services:
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
-    Producer\:
+    App\:
         resource: '../src/*'
         exclude: '../src/{Kernel.php}'
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+
+    ## Channel
+    ##########
+    PhpAmqpLib\Connection\AMQPStreamConnection:
+        arguments:
+            $host: '%env(CLOUDAMQP_HOST)%'
+            $port: '%env(CLOUDAMQP_PORT)%'
+            $user: '%env(CLOUDAMQP_USER)%'
+            $password: '%env(CLOUDAMQP_PASS)%'
+            $vhost: '%env(CLOUDAMQP_VHOST)%'
