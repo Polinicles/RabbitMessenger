@@ -17,6 +17,7 @@ services:
             - CLOUDAMQP_VHOST=${CLOUDAMQP_VHOST}
             - MAX_MSG_QUEUE=${MAX_MSG_QUEUE}
             - EXCHANGE=${EXCHANGE}
+            - MSG_BATCH_AMOUNT=${MSG_BATCH_AMOUNT}
         volumes:
             - ./php-producer:/opt/app
     php_consumer:

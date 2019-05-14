@@ -4,6 +4,7 @@ namespace App\Producer\Infrastructure\Messenger\AMQP;
 
 use PhpAmqpLib\Channel\AMQPChannel;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
+use PhpAmqpLib\Message\AMQPMessage;
 
 final class ChannelManager
 {
@@ -24,6 +25,12 @@ final class ChannelManager
     {
         $channel = $this->channel();
         $channel->queue_bind($queueName, $exchangeName);
+    }
+
+    public function addMessageToBatch(AMQPMessage $message, string $exchangeName)
+    {
+        $channel = $this->channel();
+        $channel->batch_basic_publish($message, $exchangeName);
     }
 
     public function publishBatch()

@@ -3,14 +3,16 @@
 namespace App\Producer\Infrastructure\Ui\CLI;
 
 use App\Producer\Infrastructure\Messenger\AMQP\ChannelManager;
-use App\Producer\Infrastructure\Messenger\AMQP\ExchangeManager;
-use App\Producer\Infrastructure\Messenger\AMQP\QueueManager;
+use App\Producer\Infrastructure\Messenger\AMQP\Declarer\ExchangeDeclarer;
+use App\Producer\Infrastructure\Messenger\AMQP\Declarer\QueueDeclarer;
+use App\Producer\Infrastructure\Messenger\AMQP\Factory\QueueFactory;
+use App\Producer\Infrastructure\Storage\Settings\SettingsStorer;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class SetupChannel extends Command
+final class SetupChannel extends Command
 {
     const MSG_TO_BE_SENT = 'messages';
 
@@ -19,24 +21,32 @@ class SetupChannel extends Command
     /** @var ChannelManager */
     private $channelManager;
 
-    /** @var QueueManager */
+    /** @var QueueDeclarer */
     private $queueManager;
 
-    /** @var ExchangeManager */
-    private $exchangeManager;
+    /** @var QueueFactory */
+    private $queueFactory;
+
+    /** @var ExchangeDeclarer */
+    private $exchangeDeclarer;
+
+    /** @var SettingsStorer */
+    private $settingsStorer;
 
     /** @var string */
     private $exchangeName;
 
     public function __construct(
         ChannelManager $channelManager,
-        QueueManager $queueManager,
-        ExchangeManager $exchangeManager,
+        QueueDeclarer $queueManager,
+        QueueFactory $queueFactory,
+        ExchangeDeclarer $exchangeDeclarer,
         string $exchangeName
     ) {
         $this->channelManager = $channelManager;
         $this->queueManager = $queueManager;
-        $this->exchangeManager = $exchangeManager;
+        $this->queueFactory = $queueFactory;
+        $this->exchangeDeclarer = $exchangeDeclarer;
         $this->exchangeName = $exchangeName;
 
         parent::__construct();
@@ -61,15 +71,17 @@ class SetupChannel extends Command
      * @param OutputInterface $output
      * @throws \Exception
      */
-    protected function execute(InputInterface $input, OutputInterface $output) //TODO: implement try & catch
+    protected function execute(InputInterface $input, OutputInterface $output)
     {
         try {
             $messagesToSend = (int) $input->getOption(self::MSG_TO_BE_SENT);
+            $this->settingsStorer->defineMessages($messagesToSend);
+            $this->settingsStorer->saveSettings();
+
             $channel = $this->channelManager->channel();
             $exchange = $this->exchangeName;
-
-            $queues = $this->queueManager->calculateNecessaryQueues($messagesToSend);
-            $this->exchangeManager->declare($channel, $exchange);
+            $queues = $this->queueFactory->calculateNecessaryQueues($messagesToSend);
+            $this->exchangeDeclarer->declare($channel, $exchange);
 
             foreach ($queues as $queue) {
                 $this->queueManager->declare($channel, $queue);

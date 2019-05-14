@@ -31,20 +31,32 @@ services:
             $password: '%env(CLOUDAMQP_PASS)%'
             $vhost: '%env(CLOUDAMQP_VHOST)%'
 
-    App\Producer\Infrastructure\Messenger\AMQP\QueueManager:
+    ## AMQP Declarer
+    ##########
+    App\Producer\Infrastructure\Messenger\AMQP\Declarer\QueueDeclarer:
         arguments:
             $passive: false
             $durable: false
             $exclusive: false
             $autoDelete: false
-            $maxMessagesPerQueue: '%env(MAX_MSG_QUEUE)%'
 
-    App\Producer\Infrastructure\Messenger\AMQP\ExchangeManager:
+    App\Producer\Infrastructure\Messenger\AMQP\\Declarer\ExchangeDeclarer:
         arguments:
             $exchangeType: 'direct'
             $passive: false
             $durable: false
             $autoDelete: false
+
+    ## AMQP Factory
+    ##########
+    App\Producer\Infrastructure\Messenger\AMQP\Factory\QueueFactory:
+        arguments:
+            $maxMessagesPerQueue: '%env(MAX_MSG_QUEUE)%'
+
+    App\Producer\Infrastructure\Messenger\AMQP\Factory\MessageFactory:
+        arguments:
+            $contentType: 'text/plain'
+            $deliveryMode: 2
 
 
     ## CLI
@@ -55,3 +67,11 @@ services:
             $queueManager: '@App\Producer\Infrastructure\Messenger\AMQP\QueueManager'
             $exchangeManager: '@App\Producer\Infrastructure\Messenger\AMQP\ExchangeManager'
             $exchangeName: '%env(EXCHANGE)%'
+
+    App\Producer\Infrastructure\Ui\CLI\SendMessages:
+        arguments:
+            $channelManager: '@App\Producer\Infrastructure\Messenger\AMQP\ChannelManager'
+            $messageFactory: '@App\Producer\Infrastructure\Messenger\AMQP\Factory\MessageFactory'
+            $settingsReader: '@App\Producer\Infrastructure\Storage\Settings\SettingsReader'
+            $exchangeName: '%env(EXCHANGE)%'
+            $messagesBatchSize: '%env(MSG_BATCH_AMOUNT)%'

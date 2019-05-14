@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Producer\Infrastructure\Messenger\AMQP;
+namespace App\Producer\Infrastructure\Messenger\AMQP\Declarer;
 
 use PhpAmqpLib\Channel\AMQPChannel;
 
-class ExchangeManager
+final class ExchangeDeclarer
 {
     /** var string */
     private $exchangeType;
