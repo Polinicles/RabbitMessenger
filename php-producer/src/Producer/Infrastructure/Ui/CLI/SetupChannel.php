@@ -64,7 +64,7 @@ class SetupChannel extends Command
     protected function execute(InputInterface $input, OutputInterface $output) //TODO: implement try & catch
     {
         try {
-            $messagesToSend = $input->getOption(self::MSG_TO_BE_SENT);
+            $messagesToSend = (int) $input->getOption(self::MSG_TO_BE_SENT);
             $channel = $this->channelManager->channel();
             $exchange = $this->exchangeName;
 

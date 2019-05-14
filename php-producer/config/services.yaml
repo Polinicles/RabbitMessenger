@@ -45,3 +45,13 @@ services:
             $passive: false
             $durable: false
             $autoDelete: false
+
+
+    ## CLI
+    ##########
+    App\Producer\Infrastructure\Ui\CLI\SetupChannel:
+        arguments:
+            $channelManager: '@App\Producer\Infrastructure\Messenger\AMQP\ChannelManager'
+            $queueManager: '@App\Producer\Infrastructure\Messenger\AMQP\QueueManager'
+            $exchangeManager: '@App\Producer\Infrastructure\Messenger\AMQP\ExchangeManager'
+            $exchangeName: '%env(EXCHANGE)%'
