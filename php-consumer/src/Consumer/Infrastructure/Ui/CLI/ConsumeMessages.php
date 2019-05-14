@@ -73,7 +73,7 @@ final class ConsumeMessages extends Command
 
             $output->writeln('Message/s sent successfully');
         } catch (\Exception $e) {
-            $output->writeln('Error:'.$e->getMessage());
+            $output->writeln('Error: '.$e->getMessage());
         }
     }
 

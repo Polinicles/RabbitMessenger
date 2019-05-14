@@ -54,24 +54,27 @@ final class SendMessages extends Command
         $messagesToSend = $this->settingsReader->getMessages();
 
         try{
-            $message = $this->messageFactory->create('first message');
+            $message = $this->messageFactory->create('First message');
             $this->channelManager->addMessageToBatch($message, $this->exchangeName);
 
             for ($i = 1; $i <= $messagesToSend; $i++) {
-                $message->setBody('id:'.$i.'|text: white walkers coming!|to: jhonsnow@winterfell.com');
+                $message->setBody('id:' . $i . '|text: white walkers coming!|to: jhonsnow@winterfell.com');
                 $this->channelManager->addMessageToBatch($message, $this->exchangeName);
 
                 if (($i+1) % $this->messagesBatchSize === 0){
+                    $this->channelManager->addMessageToBatch($message, $this->exchangeName);
                     $this->channelManager->publishBatch();
                 }
             }
 
+            $message->setBody('quit');
+            $this->channelManager->addMessageToBatch($message, $this->exchangeName);
             $this->channelManager->publishBatch();
             $this->channelManager->close();
 
             $output->writeln('Message/s sent successfully');
         } catch (\Exception $e) {
-            $output->writeln('Error:'.$e->getMessage());
+            $output->writeln('Error:' . $e->getMessage());
         }
     }
 }

@@ -57,3 +57,4 @@ services:
     App\Consumer\Infrastructure\Ui\CLI\ProcessQueue:
         arguments:
             $messagesBatchSize: '%env(MSG_BATCH_AMOUNT)%'
+            $timeout: 100

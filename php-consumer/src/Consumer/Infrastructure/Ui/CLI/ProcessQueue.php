@@ -4,6 +4,7 @@ namespace App\Consumer\Infrastructure\Ui\CLI;
 
 use App\Consumer\Infrastructure\Messenger\AMQP\ChannelConsumer;
 use App\Consumer\Infrastructure\Messenger\AMQP\ChannelManager;
+use PhpAmqpLib\Exception\AMQPTimeoutException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -24,16 +25,21 @@ class ProcessQueue extends Command
     /** @var string */
     private $messagesBatchSize;
 
+    /** @var int */
+    private $timeout;
+
 
     public function __construct(
         ChannelManager $channelManager,
         ChannelConsumer $channelConsumer,
         LoggerInterface $logger,
+        int $timeout,
         string $messagesBatchSize
     ) {
         $this->channelManager = $channelManager;
         $this->channelConsumer = $channelConsumer;
         $this->logger = $logger;
+        $this->timeout = $timeout;
         $this->messagesBatchSize = $messagesBatchSize;
 
         parent::__construct();
@@ -57,14 +63,14 @@ class ProcessQueue extends Command
             $this->channelManager->defineBatchSize($this->messagesBatchSize);
             $this->channelConsumer->consume($channel, $queueName, $this->callback());
 
-            while ($channel->is_consuming()) {
-                $channel->wait();
+            while (count($channel->callbacks) > 0) {
+                $channel->wait(null, null, $this->timeout);
             }
-        }catch (\Exception $e) {
+        } catch (\Exception $e) {
             $this->channelManager->close();
+            $channel->queue_delete($queueName);
         }
 
-        //TODO: delete queues if all msg have been sent
         $output->writeln('Message/s received, check the log');
 
     }
@@ -74,6 +80,10 @@ class ProcessQueue extends Command
         return function ($message) {
             $this->logger->info('Message: '.$message->body);
             $message->delivery_info['channel']->basic_ack($message->delivery_info['delivery_tag']);
+
+            if ($message->body === 'quit') {
+                $message->delivery_info['channel']->basic_cancel($message->delivery_info['consumer_tag']);
+            }
         };
     }
 }
