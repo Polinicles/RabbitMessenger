@@ -4,7 +4,6 @@ namespace App\Consumer\Infrastructure\Ui\CLI;
 
 use App\Consumer\Infrastructure\Messenger\AMQP\ChannelManager;
 use App\Consumer\Infrastructure\Messenger\AMQP\Factory\QueueFactory;
-use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
@@ -12,6 +11,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class ConsumeMessages extends Command
 {
+    const QUEUE_PROCESSOR = 'app:queue:process';
+
     /** @var ChannelManager */
     private $channelManager;
 
@@ -40,29 +41,32 @@ class ConsumeMessages extends Command
         try{
             $channel = $this->channelManager->channel();
             $messagesToBeReceived = 0;
+
             $callback = function ($msg) use (&$messagesToBeReceived) {
-                dump('hi');
+
                 $msg->delivery_info['channel']->basic_ack($msg->delivery_info['delivery_tag']);
-                $settings = json_decode($msg->body, true);dump($settings);
+                $settings = json_decode($msg->body, true);
                 $messagesToBeReceived = $settings['messages'];
-                if(!$messagesToBeReceived) {
+
+                if (!$messagesToBeReceived) {
                     throw new \Exception('Missing messages amount');
                 } else {
                     $msg->delivery_info['channel']->basic_cancel($msg->delivery_info['consumer_tag']);
                 }
             };
+
             $channel->basic_consume('queue1', '', false, false, false, false, $callback); //TODO: fix this
             while (count($channel->callbacks)) {
                 $channel->wait(null, false, 10);
             }
 
             $queues = $this->queueFactory->calculateNecessaryQueues($messagesToBeReceived);
-            $ProcessQueueCommand = $this->getApplication()->find('app:queue:process');
+            $ProcessQueueCommand = $this->getApplication()->find(self::QUEUE_PROCESSOR);
 
 
             foreach ($queues as $queue) {
                 $arguments = [
-                    'command' => 'app:queue:process',
+                    'command' => self::QUEUE_PROCESSOR,
                     'name'    => $queue
                 ];
                 $queueArgument = new ArrayInput($arguments);

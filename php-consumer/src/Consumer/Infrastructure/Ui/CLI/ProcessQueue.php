@@ -14,9 +14,6 @@ class ProcessQueue extends Command
     /** @var ChannelManager */
     private $channelManager;
 
-    /** @var LoggerInterface */
-    private $logger;
-
     /** @var string */
     private $messagesBatchSize;
 
@@ -44,10 +41,7 @@ class ProcessQueue extends Command
             $channel = $this->channelManager->channel();
             $queueName = $input->getArgument('name');
 
-            $callback = function ($msg) {
-                $this->logger->notice('Message: '.$msg->body);
-                $msg->delivery_info['channel']->basic_ack($msg->delivery_info['delivery_tag']);
-            };
+            $callback = $this->defineCallBack();
             $this->channelManager->defineBatchSize($this->messagesBatchSize);
             $channel->basic_consume($queueName, '', false, false, false, false, $callback);
 
@@ -55,11 +49,19 @@ class ProcessQueue extends Command
                 $channel->wait();
             }
         }catch (\Exception $e) {
-            $this->channelManager->closeConnection();
+            $this->channelManager->close();
         }
 
         //TODO: delete queues if all msg have been sent
         $output->writeln('Message/s received, check the log');
 
+    }
+
+    private function defineCallBack()
+    {
+        return function ($message) {
+            $this->logger->notice('Message: '.$message->body);
+            $message->delivery_info['channel']->basic_ack($message->delivery_info['delivery_tag']);
+        };
     }
 }

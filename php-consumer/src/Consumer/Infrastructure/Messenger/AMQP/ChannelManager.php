@@ -20,7 +20,7 @@ final class ChannelManager
         return $this->channel;
     }
 
-    public function defineBatchSize(int $size)
+    public function defineBatchSize(int $size): void
     {
         $this->channel->basic_qos(null, $size, null);
     }
