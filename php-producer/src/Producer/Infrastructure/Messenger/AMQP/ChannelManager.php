@@ -8,35 +8,32 @@ use PhpAmqpLib\Message\AMQPMessage;
 
 final class ChannelManager
 {
-    /** @var AMQPStreamConnection */
-    private $connection;
+    /** @var AMQPChannel */
+    private $channel;
 
     public function __construct(AMQPStreamConnection $connection)
     {
-        $this->connection = $connection;
+        $this->channel = $connection->channel();
     }
 
     public function channel(): AMQPChannel
     {
-        return $this->connection->channel();
+        return $this->channel;
     }
 
     public function bindQueueToExchange(string $queueName, string $exchangeName)
     {
-        $channel = $this->channel();
-        $channel->queue_bind($queueName, $exchangeName);
+        $this->channel->queue_bind($queueName, $exchangeName);
     }
 
     public function addMessageToBatch(AMQPMessage $message, string $exchangeName)
     {
-        $channel = $this->channel();
-        $channel->batch_basic_publish($message, $exchangeName);
+        $this->channel->batch_basic_publish($message, $exchangeName);
     }
 
     public function publishBatch()
     {
-        $channel = $this->channel();
-        $channel->publish_batch();
+        $this->channel->publish_batch();
     }
 
     /**
@@ -44,8 +41,6 @@ final class ChannelManager
      */
     public function close(): void
     {
-        $channel = $this->channel();
-        $channel->close();
-        $this->connection->close();
+        $this->channel->close();
     }
 }

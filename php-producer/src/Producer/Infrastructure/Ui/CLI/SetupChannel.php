@@ -22,7 +22,7 @@ final class SetupChannel extends Command
     private $channelManager;
 
     /** @var QueueDeclarer */
-    private $queueManager;
+    private $queueDeclarer;
 
     /** @var QueueFactory */
     private $queueFactory;
@@ -38,15 +38,17 @@ final class SetupChannel extends Command
 
     public function __construct(
         ChannelManager $channelManager,
-        QueueDeclarer $queueManager,
+        QueueDeclarer $queueDeclarer,
         QueueFactory $queueFactory,
         ExchangeDeclarer $exchangeDeclarer,
+        SettingsStorer $settingsStorer,
         string $exchangeName
     ) {
         $this->channelManager = $channelManager;
-        $this->queueManager = $queueManager;
+        $this->queueDeclarer = $queueDeclarer;
         $this->queueFactory = $queueFactory;
         $this->exchangeDeclarer = $exchangeDeclarer;
+        $this->settingsStorer = $settingsStorer;
         $this->exchangeName = $exchangeName;
 
         parent::__construct();
@@ -76,7 +78,6 @@ final class SetupChannel extends Command
         try {
             $messagesToSend = (int) $input->getOption(self::MSG_TO_BE_SENT);
             $this->settingsStorer->defineMessages($messagesToSend);
-            $this->settingsStorer->saveSettings();
 
             $channel = $this->channelManager->channel();
             $exchange = $this->exchangeName;
@@ -84,11 +85,9 @@ final class SetupChannel extends Command
             $this->exchangeDeclarer->declare($channel, $exchange);
 
             foreach ($queues as $queue) {
-                $this->queueManager->declare($channel, $queue);
+                $this->queueDeclarer->declare($channel, $queue);
                 $this->channelManager->bindQueueToExchange($queue, $exchange);
             }
-
-            $this->channelManager->close();
 
             $output->writeln('Channel defined successfully');
         } catch (\Throwable $exception) {

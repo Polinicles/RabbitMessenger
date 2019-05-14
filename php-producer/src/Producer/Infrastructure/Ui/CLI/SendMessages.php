@@ -28,13 +28,13 @@ final class SendMessages extends Command
 
     public function __construct(
         ChannelManager $channelManager,
-        MessageFactory $messageManager,
+        MessageFactory $messageFactory,
         SettingsReader $settingsReader,
         string $exchangeName,
         int $messagesBatchSize
     ) {
         $this->channelManager = $channelManager;
-        $this->messageFactory = $messageManager;
+        $this->messageFactory = $messageFactory;
         $this->settingsReader = $settingsReader;
         $this->exchangeName = $exchangeName;
         $this->messagesBatchSize = $messagesBatchSize;
@@ -65,13 +65,13 @@ final class SendMessages extends Command
                     $this->channelManager->publishBatch();
                 }
             }
+
             $this->channelManager->publishBatch();
             $this->channelManager->close();
 
-        }catch (\Exception $e) {
-            $output->writeln($e->getMessage());
+            $output->writeln('Message/s sent successfully');
+        } catch (\Exception $e) {
+            $output->writeln('Error:'.$e->getMessage());
         }
-
-        $output->writeln('Message/s sent successfully');
     }
 }

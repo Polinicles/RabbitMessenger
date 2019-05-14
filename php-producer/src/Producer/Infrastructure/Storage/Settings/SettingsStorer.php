@@ -9,20 +9,26 @@ class SettingsStorer extends Settings
     /** @var array */
     private $content;
 
-    public function content(): array
+    public function __construct()
     {
-        return $this->content;
+        $this->content = [];
     }
 
     public function defineMessages(int $messages): void
     {
         $this->content['messages'] = $messages;
+        $this->saveSettings();
     }
 
-    public function saveSettings(): void
+    private function saveSettings(): void
     {
         $fp = fopen(self::REPORT_FILE, self::OPEN_MODE);
         fwrite($fp, json_encode($this->content()));
         fclose($fp);
+    }
+
+    private function content(): array
+    {
+        return $this->content;
     }
 }

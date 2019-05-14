@@ -40,7 +40,7 @@ services:
             $exclusive: false
             $autoDelete: false
 
-    App\Producer\Infrastructure\Messenger\AMQP\\Declarer\ExchangeDeclarer:
+    App\Producer\Infrastructure\Messenger\AMQP\Declarer\ExchangeDeclarer:
         arguments:
             $exchangeType: 'direct'
             $passive: false
@@ -64,8 +64,9 @@ services:
     App\Producer\Infrastructure\Ui\CLI\SetupChannel:
         arguments:
             $channelManager: '@App\Producer\Infrastructure\Messenger\AMQP\ChannelManager'
-            $queueManager: '@App\Producer\Infrastructure\Messenger\AMQP\QueueManager'
-            $exchangeManager: '@App\Producer\Infrastructure\Messenger\AMQP\ExchangeManager'
+            $queueDeclarer: '@App\Producer\Infrastructure\Messenger\AMQP\Declarer\QueueDeclarer'
+            $queueFactory: '@App\Producer\Infrastructure\Messenger\AMQP\Factory\QueueFactory'
+            $exchangeDeclarer: '@App\Producer\Infrastructure\Messenger\AMQP\Declarer\ExchangeDeclarer'
             $exchangeName: '%env(EXCHANGE)%'
 
     App\Producer\Infrastructure\Ui\CLI\SendMessages:
