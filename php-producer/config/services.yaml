@@ -63,16 +63,13 @@ services:
     ##########
     App\Producer\Infrastructure\Ui\CLI\SetupChannel:
         arguments:
-            $channelManager: '@App\Producer\Infrastructure\Messenger\AMQP\ChannelManager'
-            $queueDeclarer: '@App\Producer\Infrastructure\Messenger\AMQP\Declarer\QueueDeclarer'
-            $queueFactory: '@App\Producer\Infrastructure\Messenger\AMQP\Factory\QueueFactory'
-            $exchangeDeclarer: '@App\Producer\Infrastructure\Messenger\AMQP\Declarer\ExchangeDeclarer'
             $exchangeName: '%env(EXCHANGE)%'
 
     App\Producer\Infrastructure\Ui\CLI\SendMessages:
         arguments:
-            $channelManager: '@App\Producer\Infrastructure\Messenger\AMQP\ChannelManager'
-            $messageFactory: '@App\Producer\Infrastructure\Messenger\AMQP\Factory\MessageFactory'
-            $settingsReader: '@App\Producer\Infrastructure\Storage\Settings\SettingsReader'
             $exchangeName: '%env(EXCHANGE)%'
             $messagesBatchSize: '%env(MSG_BATCH_AMOUNT)%'
+
+    App\Producer\Infrastructure\Ui\CLI\SendSettings:
+        arguments:
+            $exchangeName: '%env(EXCHANGE)%'

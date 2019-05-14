@@ -31,6 +31,11 @@ final class ChannelManager
         $this->channel->batch_basic_publish($message, $exchangeName);
     }
 
+    public function addMessage(AMQPMessage $message, string $exchangeName)
+    {
+        $this->channel->basic_publish($message, $exchangeName);
+    }
+
     public function publishBatch()
     {
         $this->channel->publish_batch();
