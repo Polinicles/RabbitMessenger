@@ -2,6 +2,7 @@
 
 namespace App\Consumer\Infrastructure\Ui\CLI;
 
+use App\Consumer\Infrastructure\Messenger\AMQP\ChannelConsumer;
 use App\Consumer\Infrastructure\Messenger\AMQP\ChannelManager;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Command\Command;
@@ -14,12 +15,24 @@ class ProcessQueue extends Command
     /** @var ChannelManager */
     private $channelManager;
 
+    /** @var ChannelConsumer */
+    private $channelConsumer;
+
+    /** @var LoggerInterface */
+    private $logger;
+
     /** @var string */
     private $messagesBatchSize;
 
-    public function __construct(ChannelManager $channelManager, LoggerInterface $logger, string $messagesBatchSize)
-    {
+
+    public function __construct(
+        ChannelManager $channelManager,
+        ChannelConsumer $channelConsumer,
+        LoggerInterface $logger,
+        string $messagesBatchSize
+    ) {
         $this->channelManager = $channelManager;
+        $this->channelConsumer = $channelConsumer;
         $this->logger = $logger;
         $this->messagesBatchSize = $messagesBatchSize;
 
@@ -41,9 +54,8 @@ class ProcessQueue extends Command
             $channel = $this->channelManager->channel();
             $queueName = $input->getArgument('name');
 
-            $callback = $this->defineCallBack();
             $this->channelManager->defineBatchSize($this->messagesBatchSize);
-            $channel->basic_consume($queueName, '', false, false, false, false, $callback);
+            $this->channelConsumer->consume($channel, $queueName, $this->callback());
 
             while ($channel->is_consuming()) {
                 $channel->wait();
@@ -57,10 +69,10 @@ class ProcessQueue extends Command
 
     }
 
-    private function defineCallBack()
+    private function callback()
     {
         return function ($message) {
-            $this->logger->notice('Message: '.$message->body);
+            $this->logger->info('Message: '.$message->body);
             $message->delivery_info['channel']->basic_ack($message->delivery_info['delivery_tag']);
         };
     }

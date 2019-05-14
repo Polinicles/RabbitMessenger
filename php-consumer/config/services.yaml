@@ -31,6 +31,14 @@ services:
             $password: '%env(CLOUDAMQP_PASS)%'
             $vhost: '%env(CLOUDAMQP_VHOST)%'
 
+    App\Consumer\Infrastructure\Messenger\AMQP\ChannelConsumer:
+        arguments:
+            $consumerTag: ''
+            $noLocal: false
+            $noAck: false
+            $exclusive: false
+            $noWait: false
+
 
     ## AMQP Factory
     ##########

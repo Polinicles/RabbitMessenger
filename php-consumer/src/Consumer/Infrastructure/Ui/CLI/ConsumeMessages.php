@@ -2,28 +2,39 @@
 
 namespace App\Consumer\Infrastructure\Ui\CLI;
 
+use App\Consumer\Infrastructure\Messenger\AMQP\ChannelConsumer;
 use App\Consumer\Infrastructure\Messenger\AMQP\ChannelManager;
 use App\Consumer\Infrastructure\Messenger\AMQP\Factory\QueueFactory;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class ConsumeMessages extends Command
+final class ConsumeMessages extends Command
 {
+    const MSG_TO_BE_SENT = 'messages';
+
+    const DEFAULT_MSG_TO_SEND = 10;
+
     const QUEUE_PROCESSOR = 'app:queue:process';
 
     /** @var ChannelManager */
     private $channelManager;
+
+    /** @var ChannelConsumer */
+    private $channelConsumer;
 
     /** @var QueueFactory */
     private $queueFactory;
 
     public function __construct(
         ChannelManager $channelManager,
+        ChannelConsumer $channelConsumer,
         QueueFactory $queueFactory
     ) {
         $this->channelManager = $channelManager;
+        $this->channelConsumer = $channelConsumer;
         $this->queueFactory = $queueFactory;
 
         parent::__construct();
@@ -33,36 +44,23 @@ class ConsumeMessages extends Command
     {
         $this
             ->setName('app:message:consume')
+            ->addOption(
+                self::MSG_TO_BE_SENT,
+                null,
+                InputOption::VALUE_REQUIRED,
+                'How many messages do you want to send?',
+                self::DEFAULT_MSG_TO_SEND
+            )
         ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         try{
-            $channel = $this->channelManager->channel();
-            $messagesToBeReceived = 0;
-
-            $callback = function ($msg) use (&$messagesToBeReceived) {
-
-                $msg->delivery_info['channel']->basic_ack($msg->delivery_info['delivery_tag']);
-                $settings = json_decode($msg->body, true);
-                $messagesToBeReceived = $settings['messages'];
-
-                if (!$messagesToBeReceived) {
-                    throw new \Exception('Missing messages amount');
-                } else {
-                    $msg->delivery_info['channel']->basic_cancel($msg->delivery_info['consumer_tag']);
-                }
-            };
-
-            $channel->basic_consume('queue1', '', false, false, false, false, $callback); //TODO: fix this
-            while (count($channel->callbacks)) {
-                $channel->wait(null, false, 10);
-            }
+            $messagesToBeReceived = (int) $input->getOption(self::MSG_TO_BE_SENT);;
 
             $queues = $this->queueFactory->calculateNecessaryQueues($messagesToBeReceived);
-            $ProcessQueueCommand = $this->getApplication()->find(self::QUEUE_PROCESSOR);
-
+            $ProcessQueueCommand = $this->getConsumerCommand();
 
             foreach ($queues as $queue) {
                 $arguments = [
@@ -77,5 +75,10 @@ class ConsumeMessages extends Command
         } catch (\Exception $e) {
             $output->writeln('Error:'.$e->getMessage());
         }
+    }
+
+    private function getConsumerCommand(): Command
+    {
+        return $this->getApplication()->find(self::QUEUE_PROCESSOR);
     }
 }

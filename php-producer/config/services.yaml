@@ -69,7 +69,3 @@ services:
         arguments:
             $exchangeName: '%env(EXCHANGE)%'
             $messagesBatchSize: '%env(MSG_BATCH_AMOUNT)%'
-
-    App\Producer\Infrastructure\Ui\CLI\SendSettings:
-        arguments:
-            $exchangeName: '%env(EXCHANGE)%'
