@@ -30,7 +30,7 @@ final class QueueDeclarer
         $this->autoDelete = $autoDelete;
     }
 
-    public function declare(AMQPChannel $channel, string $queueName)
+    public function declare(AMQPChannel $channel, string $queueName): void
     {
         $channel->queue_declare($queueName, $this->passive, $this->durable, $this->exclusive, $this->autoDelete);
     }

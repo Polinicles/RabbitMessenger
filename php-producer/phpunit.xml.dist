@@ -13,11 +13,14 @@
         <server name="SHELL_VERBOSITY" value="-1" />
         <server name="SYMFONY_PHPUNIT_REMOVE" value="" />
         <server name="SYMFONY_PHPUNIT_VERSION" value="6.5" />
+        <!-- only fail if more than 5 deprecations in the project -->
+        <env name="SYMFONY_DEPRECATIONS_HELPER" value="5" />
+        <!-- define your env variables for the test env here -->
     </php>
 
     <testsuites>
-        <testsuite name="Project Test Suite">
-            <directory>tests</directory>
+        <testsuite name="unit-tests">
+            <directory suffix="Test.php">./tests/Unit</directory>
         </testsuite>
     </testsuites>
 

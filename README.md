@@ -90,4 +90,14 @@ $ bin/console app:message:consume --messages={number-of-msg-to-be-received}
 
 That will execute as many daemons as queues are, will process the messages by logging the content and will destroy the queues when they're finished.
 
+## Unit tests
+
+You can run some unit tests in the producer container by
+
+```sh
+$ ./vendor/bin/simple-phpunit --testsuite=unit-tests
+```
+
+
+
 Enjoy =)

@@ -1,1 +1,1 @@
-{"messages":2000,"queues":["queue1","queue2"]}
+{"messages":3000,"queues":["queue1","queue2","queue3"]}

@@ -57,7 +57,7 @@ final class ConsumeMessages extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         try{
-            $messagesToBeReceived = (int) $input->getOption(self::MSG_TO_BE_SENT);;
+            $messagesToBeReceived = (int) $input->getOption(self::MSG_TO_BE_SENT);
 
             $queues = $this->queueFactory->calculateNecessaryQueues($messagesToBeReceived);
             $ProcessQueueCommand = $this->getConsumerCommand();

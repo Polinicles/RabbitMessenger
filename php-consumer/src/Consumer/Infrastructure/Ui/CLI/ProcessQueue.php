@@ -10,7 +10,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class ProcessQueue extends Command
+final class ProcessQueue extends Command
 {
     /** @var ChannelManager */
     private $channelManager;
@@ -66,7 +66,7 @@ class ProcessQueue extends Command
                 $channel->wait(null, null, $this->timeout);
             }
 
-            $output->writeln('Message/s received from ' . $queueName .', check the log');
+            $output->writeln('Message/s received from ' . $queueName .', check the dev.log');
             $this->channelManager->deleteQueue($queueName);
 
         } catch (\Exception $e) {

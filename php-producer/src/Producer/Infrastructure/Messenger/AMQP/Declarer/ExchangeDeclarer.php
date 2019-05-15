@@ -26,7 +26,7 @@ final class ExchangeDeclarer
         $this->autoDelete = $autoDelete;
     }
 
-    public function declare(AMQPChannel $channel, string $exchangeName)
+    public function declare(AMQPChannel $channel, string $exchangeName): void
     {
         $channel->exchange_declare(
             $exchangeName,

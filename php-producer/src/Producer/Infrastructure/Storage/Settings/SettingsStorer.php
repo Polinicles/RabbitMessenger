@@ -2,7 +2,7 @@
 
 namespace App\Producer\Infrastructure\Storage\Settings;
 
-class SettingsStorer extends Settings
+final class SettingsStorer extends Settings
 {
     const OPEN_MODE = 'wb';
 

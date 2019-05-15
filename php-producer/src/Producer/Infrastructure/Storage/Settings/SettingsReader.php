@@ -2,7 +2,7 @@
 
 namespace App\Producer\Infrastructure\Storage\Settings;
 
-class SettingsReader extends Settings
+final class SettingsReader extends Settings
 {
     const MESSAGES = 'messages';
 
