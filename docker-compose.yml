@@ -9,7 +9,9 @@ services:
         networks:
             - rm_network
         environment:
-            - APP_ENV=dev
+            - APP_ENV=${APP_ENV}
+            - APP_DEBUG=${APP_DEBUG}
+            - APP_SECRET=${APP_PRODUCER_SECRET}
             - CLOUDAMQP_HOST=${CLOUDAMQP_HOST}
             - CLOUDAMQP_PORT=${CLOUDAMQP_PORT}
             - CLOUDAMQP_USER=${CLOUDAMQP_USER}
@@ -28,7 +30,9 @@ services:
         networks:
             - rm_network
         environment:
-            - APP_ENV=dev
+            - APP_ENV=${APP_ENV}
+            - APP_DEBUG=${APP_DEBUG}
+            - APP_SECRET=${APP_CONSUMER_SECRET}
             - CLOUDAMQP_HOST=${CLOUDAMQP_HOST}
             - CLOUDAMQP_PORT=${CLOUDAMQP_PORT}
             - CLOUDAMQP_USER=${CLOUDAMQP_USER}

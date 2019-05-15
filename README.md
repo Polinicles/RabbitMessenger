@@ -20,6 +20,12 @@ $ cd RabbitMessenger
 In order to make this app work, it requires having an instance of [Cloud AMQP](https://www.cloudamqp.com/). After creating the new instance, some parameters of it need to be specified in a new ```.env``` file placed in the root directory
 
 ```
+# SYMFONY
+APP_ENV=dev
+APP_DEBUG=1
+APP_CONSUMER_SECRET=
+APP_PRODUCER_SECRET=
+
 CLOUDAMQP_HOST=
 CLOUDAMQP_PORT=5672
 CLOUDAMQP_USER=
