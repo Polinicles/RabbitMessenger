@@ -23,17 +23,17 @@ final class ChannelManager
 
     public function bindQueueToExchange(string $queueName, string $exchangeName)
     {
-        $this->channel->queue_bind($queueName, $exchangeName);
+        $this->channel->queue_bind($queueName, $exchangeName, $queueName);
     }
 
-    public function addMessageToBatch(AMQPMessage $message, string $exchangeName)
+    public function addMessageToBatch(AMQPMessage $message, string $exchangeName, string $routingKey)
     {
-        $this->channel->batch_basic_publish($message, $exchangeName);
+        $this->channel->batch_basic_publish($message, $exchangeName, $routingKey);
     }
 
-    public function addMessage(AMQPMessage $message, string $exchangeName)
+    public function addMessage(AMQPMessage $message, string $exchangeName, string $routingKey)
     {
-        $this->channel->basic_publish($message, $exchangeName);
+        $this->channel->basic_publish($message, $exchangeName, $routingKey);
     }
 
     public function publishBatch()

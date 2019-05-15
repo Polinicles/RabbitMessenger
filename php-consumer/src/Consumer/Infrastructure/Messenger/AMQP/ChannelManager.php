@@ -25,6 +25,11 @@ final class ChannelManager
         $this->channel->basic_qos(null, $size, null);
     }
 
+    public function deleteQueue(string $queue): void
+    {
+        $this->channel->queue_delete($queue);
+    }
+
     /**
      * @throws \Exception
      */

@@ -6,11 +6,20 @@ class SettingsReader extends Settings
 {
     const MESSAGES = 'messages';
 
+    const QUEUES = 'queues';
+
     public function getMessages(): int
     {
         $messages = $this->getFileContent()[self::MESSAGES];
 
         return (int) $messages;
+    }
+
+    public function getQueues(): array
+    {
+        $queues = $this->getFileContent()[self::QUEUES];
+
+        return $queues;
     }
 
     private function getFileContent(): array

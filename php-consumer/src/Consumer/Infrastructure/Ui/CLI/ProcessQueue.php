@@ -4,7 +4,6 @@ namespace App\Consumer\Infrastructure\Ui\CLI;
 
 use App\Consumer\Infrastructure\Messenger\AMQP\ChannelConsumer;
 use App\Consumer\Infrastructure\Messenger\AMQP\ChannelManager;
-use PhpAmqpLib\Exception\AMQPTimeoutException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -66,13 +65,13 @@ class ProcessQueue extends Command
             while (count($channel->callbacks) > 0) {
                 $channel->wait(null, null, $this->timeout);
             }
+
+            $output->writeln('Message/s received from ' . $queueName .', check the log');
+            $this->channelManager->deleteQueue($queueName);
+
         } catch (\Exception $e) {
-            $this->channelManager->close();
-            $channel->queue_delete($queueName);
+            $output->writeln('Error: '.$e->getMessage());
         }
-
-        $output->writeln('Message/s received, check the log');
-
     }
 
     private function callback()

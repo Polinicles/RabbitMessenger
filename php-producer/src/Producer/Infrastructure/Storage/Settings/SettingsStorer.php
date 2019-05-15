@@ -17,10 +17,14 @@ class SettingsStorer extends Settings
     public function defineMessages(int $messages): void
     {
         $this->content['messages'] = $messages;
-        $this->saveSettings();
     }
 
-    private function saveSettings(): void
+    public function defineQueues(array $queues): void
+    {
+        $this->content['queues'] = $queues;
+    }
+
+    public function saveSettings(): void
     {
         $fp = fopen(self::REPORT_FILE, self::OPEN_MODE);
         fwrite($fp, json_encode($this->content()));

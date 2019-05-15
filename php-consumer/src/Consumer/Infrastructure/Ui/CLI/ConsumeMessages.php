@@ -71,7 +71,7 @@ final class ConsumeMessages extends Command
                 $ProcessQueueCommand->run($queueArgument, $output);
             }
 
-            $output->writeln('Message/s sent successfully');
+            $output->writeln('Message/s received successfully');
         } catch (\Exception $e) {
             $output->writeln('Error: '.$e->getMessage());
         }

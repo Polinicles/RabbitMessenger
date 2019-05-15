@@ -77,11 +77,15 @@ final class SetupChannel extends Command
     {
         try {
             $messagesToSend = (int) $input->getOption(self::MSG_TO_BE_SENT);
-            $this->settingsStorer->defineMessages($messagesToSend);
 
             $channel = $this->channelManager->channel();
             $exchange = $this->exchangeName;
             $queues = $this->queueFactory->calculateNecessaryQueues($messagesToSend);
+
+            $this->settingsStorer->defineMessages($messagesToSend);
+            $this->settingsStorer->defineQueues($queues);
+            $this->settingsStorer->saveSettings();
+
             $this->exchangeDeclarer->declare($channel, $exchange);
 
             foreach ($queues as $queue) {

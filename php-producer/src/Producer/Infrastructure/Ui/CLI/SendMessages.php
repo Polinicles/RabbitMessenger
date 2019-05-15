@@ -52,23 +52,29 @@ final class SendMessages extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $messagesToSend = $this->settingsReader->getMessages();
+        $queues = $this->settingsReader->getQueues();
+        $queuesCount = count($queues);
+        $messagesPerQueue  = $messagesToSend / $queuesCount;
+        $routingKey = 0;
 
         try{
-            $message = $this->messageFactory->create('First message');
-            $this->channelManager->addMessageToBatch($message, $this->exchangeName);
-
             for ($i = 1; $i <= $messagesToSend; $i++) {
-                $message->setBody('id:' . $i . '|text: white walkers coming!|to: jhonsnow@winterfell.com');
-                $this->channelManager->addMessageToBatch($message, $this->exchangeName);
+                $message = $this->messageFactory->create(
+                    'id:' . $i . '|text: white walkers coming!|to: jhonsnow@winterfell.com'
+                );
+                $this->channelManager->addMessageToBatch($message, $this->exchangeName, $queues[$routingKey]);
 
-                if (($i+1) % $this->messagesBatchSize === 0){
-                    $this->channelManager->addMessageToBatch($message, $this->exchangeName);
+                if ($i === $messagesPerQueue * ($routingKey + 1)) {
+                    $message = $this->messageFactory->create('quit');
+                    $this->channelManager->addMessageToBatch($message, $this->exchangeName, $queues[$routingKey]);
+                    $routingKey++;
+                }
+
+                if ($i % $this->messagesBatchSize === 0){
                     $this->channelManager->publishBatch();
                 }
             }
 
-            $message->setBody('quit');
-            $this->channelManager->addMessageToBatch($message, $this->exchangeName);
             $this->channelManager->publishBatch();
             $this->channelManager->close();
 
