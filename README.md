@@ -50,7 +50,7 @@ $ docker-compose exec php_consumer composer install
 
 ### Approach
 
-There're two **PHP** docker containers, one it's created for sending the messages (mail and message). On the other hand, the second container will receive / consume every message and will log the content. 
+There're two **PHP** docker containers, one is created for sending the messages (mail and message). The second one, will receive / consume every message and will log the content. 
 
 ### Send Messages
 
@@ -88,7 +88,7 @@ The container in charge of consuming the messages will receive them by using
 $ bin/console app:message:consume --messages={number-of-msg-to-be-received}
 ```
 
-That will execute as many daemons as queues are, will process the messages by logging the content and will destroy the queues when they're finished.
+That will execute as many daemons as queues, which will process the messages by logging the content and will destroy the queues when they're finished.
 
 ## Unit tests
 
